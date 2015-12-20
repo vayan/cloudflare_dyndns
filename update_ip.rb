@@ -10,7 +10,8 @@ def update_record(cf, record, public_ip)
         record['rec_id'],
         record['name'],
         public_ip,
-        record['ttl'])
+        record['ttl'],
+        record['service_mode'] == "1" ? true : false)
   rescue => e
       puts e.message
   else
