@@ -14,7 +14,7 @@ def update_record(cf, record, public_ip)
   rescue => e
       puts e.message
   else
-    puts "Successfuly updated DNS record with the IP #{public_ip}"
+    puts "Successfuly updated DNS record #{record['name']} with the IP #{public_ip}"
   end
 end
 
@@ -33,12 +33,14 @@ def create_record(cf, public_ip)
   end
 end
 
-def create_or_update_record(cf, record, public_ip)
-  if record.empty?
+def create_or_update_record(cf, records, public_ip)
+  if records.empty?
     puts 'No A record, creating one'
     create_record(cf, public_ip)
   else
-    update_record(cf, record, public_ip)
+    records.each do |record|
+      update_record(cf, record, public_ip)
+    end
   end
 end
 
@@ -51,7 +53,7 @@ end
 
 cf = CloudFlare::connection(config['apikey'], config['email'])
 rec = cf.rec_load_all(config['domain_name'])
-a_record = rec['response']["recs"]["objs"].select { |z| z['type'] == 'A' }.first
+a_records = rec['response']["recs"]["objs"].select { |z| z['type'] == 'A' }
 public_ip = Net::HTTP.get URI 'https://api.ipify.org'
 
-create_or_update_record(cf, a_record, public_ip)
+create_or_update_record(cf, a_records, public_ip)
